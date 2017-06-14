@@ -22,6 +22,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.jf.studentjfmusic.adapter.RecommendedAdapter;
 import com.jf.studentjfmusic.bean.HomeResponse;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import jp.wasabeef.glide.transformations.BlurTransformation;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -111,6 +113,17 @@ public class PlayListActivity extends AppCompatActivity {
         mPlayListAdapter = new RecommendedAdapter(mResultsBeens);
 
         View headView = LayoutInflater.from(this).inflate(R.layout.layout_songlist_head, rl, false);
+        ImageView head_iv_bg = (ImageView) headView.findViewById(R.id.iv_bg);
+
+        //模糊背景
+
+        Glide.with(this)
+                .load(mPlayListBean.getPicUrl())
+                //模糊图片, this   10 模糊度   5 将图片缩放到5倍后进行模糊
+                .bitmapTransform(new BlurTransformation(this,10,5) {
+                })
+                .into(head_iv_bg);
+
 
         ImageView iv_play = (ImageView) headView.findViewById(R.id.iv_play);
         iv_play.setColorFilter(Color.BLACK);

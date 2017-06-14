@@ -157,6 +157,23 @@ public class RecommendedFragment extends Fragment {
 
                     }
 
+//                    for (int i = 0; i < results.size(); i++) {
+//                        SmartImageView smartImageView = new SmartImageView(MainActivity.this);
+//                        //注意：使用xml的布局可以直接使用 imageView.getLayoutParams()
+//                        //如果是通过代码new出来的View，不能使用该方法，必须主动创建LayoutParams对象
+//                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+//                                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+//                        //设置View的参数
+//                        smartImageView.setLayoutParams(layoutParams);
+//                        //设置默认图片
+//                        smartImageView.setImageResource(R.mipmap.ic_launcher);
+//                        smartImageViews.add(smartImageView);
+
+//                    }
+
+                    //更新ViewPager数据
+                    //不能在子线程更新UI   Only the original thread that created a view hierarchy can touch its views.
+                    //需要切换回主线程
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -195,13 +212,43 @@ public class RecommendedFragment extends Fragment {
                 Log.e(TAG, "onResponse: "+homeResponse);
                 //存取有序吗？
                 HashMap<String,ArrayList<HomeResponse.ResultsBean.PlayListBean>> hashMap = new HashMap<>();
+                //
+
+                //最新音乐
+                //11111111111
+                //22222222222
+                //推荐音乐
+                //11111111111
+                //22222222222
 
                 for (int i = 0; i < homeResponse.getResults().size(); i++) {
 
                     HomeResponse.ResultsBean resultsBean = homeResponse.getResults().get(i);
                     HomeResponse.ResultsBean.PlayListBean playListBean = homeResponse.getResults().get(i).getPlayList();
+//
+//                    Home home = new Home();
+//                    home.setName(homeResponse.getResults().get(i).getItem());
+//                    home.setType(homeResponse.getResults().get(i).getType());
+//                    home.getPlayListBeen().add(playListBean);
+//                    homes.add(home);
 
+
+
+
+                    //获取【最新音乐】【推荐音乐】
                     String Item = resultsBean.getItem();
+//
+//                    for (int j = 0; j < homes.size(); j++) {
+//                        Home jHome = homes.get(j);
+//                        if(jHome.getName().equals(Item)){
+//                            jHome.getPlayListBeen().add(playListBean);
+//                        }else{
+//                            ArrayList<HomeResponse.ResultsBean.PlayListBean> resultsBeens = new ArrayList<HomeResponse.ResultsBean.PlayListBean>();
+//                            resultsBeens.add(playListBean);
+//                            jHome.setPlayListBeen(resultsBeens);
+//                        }
+//                    }
+
 
                     if(hashMap.containsKey(Item)){
                         //包含

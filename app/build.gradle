@@ -35,4 +35,7 @@ dependencies {
     compile 'com.google.code.gson:gson:2.2.4'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
+
+    compile 'jp.wasabeef:glide-transformations:2.0.1'
+
 }
