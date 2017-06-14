@@ -23,7 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.jf.studentjfmusic.adapter.PlayListAdapter;
+import com.jf.studentjfmusic.adapter.RecommendedAdapter;
 import com.jf.studentjfmusic.bean.HomeResponse;
 import com.jf.studentjfmusic.bean.NewPlayListResponse;
 import com.jf.studentjfmusic.bean.NewPlayListResultsBean;
@@ -83,7 +83,7 @@ public class PlayListActivity extends AppCompatActivity {
     private static final String TAG = "PlayListActivity";
 
     ArrayList<NewPlayListResultsBean> mResultsBeens;
-    private PlayListAdapter mPlayListAdapter;
+    private RecommendedAdapter mPlayListAdapter;
     private HomeResponse.ResultsBean.PlayListBean mPlayListBean;
 
     @Override
@@ -108,9 +108,9 @@ public class PlayListActivity extends AppCompatActivity {
         getNewPlayList(mPlayListBean.getObjectId());
 
         rl.setLayoutManager(new LinearLayoutManager(this));
-        mPlayListAdapter = new PlayListAdapter(mResultsBeens);
+        mPlayListAdapter = new RecommendedAdapter(mResultsBeens);
 
-        View headView = LayoutInflater.from(this).inflate(R.layout.layout_playlist_head, rl, false);
+        View headView = LayoutInflater.from(this).inflate(R.layout.layout_songlist_head, rl, false);
 
         ImageView iv_play = (ImageView) headView.findViewById(R.id.iv_play);
         iv_play.setColorFilter(Color.BLACK);
@@ -233,7 +233,7 @@ public class PlayListActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             Toast.makeText(context, "我接收到播放的广播啦", Toast.LENGTH_SHORT).show();
 
-            NewPlayListResultsBean bean = intent.getParcelableExtra(PlayListAdapter.PLAYDATA_KEY);
+            NewPlayListResultsBean bean = intent.getParcelableExtra(RecommendedAdapter.PLAYDATA_KEY);
 
             tv_name.setText(bean.getTitle());
 

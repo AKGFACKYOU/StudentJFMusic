@@ -53,7 +53,13 @@ public class RecommendedFragment extends Fragment {
 
     @BindView(R.id.rl)
     RecyclerView rl;
+
+    ArrayList<Home> homes = new ArrayList<Home>();
+
+
+//    private HomeHeadFooterAdapter homeAdapter = new HomeHeadFooterAdapter(homes);
     private HomeHeadFooterAdapter homeAdapter;
+    private ViewPager vp;
 
     @Nullable
     @Override
@@ -67,7 +73,6 @@ public class RecommendedFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this, view);
-        homeAdapter = new HomeHeadFooterAdapter(homes);
 
         rl.setLayoutManager(new LinearLayoutManager(getActivity()));
         homeAdapter = new HomeHeadFooterAdapter(homes);
@@ -79,13 +84,18 @@ public class RecommendedFragment extends Fragment {
         homeAdapter.setHeadView(headView);
         homeAdapter.setFooterView(footerView);
         rl.setAdapter(homeAdapter);
-        ViewPager vp = (ViewPager) headView.findViewById(R.id.vp);
-
+        vp = (ViewPager) headView.findViewById(R.id.vp);
+        homeAdapter.setmItemSelector(tempRecommendedItemSelector);
 
         bannerAdapter = new BannerAdapter(results);
-        vp.setAdapter(bannerAdapter);
         getBanner();
         getHome();
+    }
+
+    HomeHeadFooterAdapter.RecommendedItemSelector tempRecommendedItemSelector;
+    public void setmItemSelector(HomeHeadFooterAdapter.RecommendedItemSelector selector){
+//        homeAdapter.setmItemSelector(selector);
+        tempRecommendedItemSelector = selector;
     }
 
 
@@ -147,29 +157,15 @@ public class RecommendedFragment extends Fragment {
 
                     }
 
-//                    for (int i = 0; i < results.size(); i++) {
-//                        SmartImageView smartImageView = new SmartImageView(MainActivity.this);
-//                        //注意：使用xml的布局可以直接使用 imageView.getLayoutParams()
-//                        //如果是通过代码new出来的View，不能使用该方法，必须主动创建LayoutParams对象
-//                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-//                                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-//                        //设置View的参数
-//                        smartImageView.setLayoutParams(layoutParams);
-//                        //设置默认图片
-//                        smartImageView.setImageResource(R.mipmap.ic_launcher);
-//                        smartImageViews.add(smartImageView);
-
-//                    }
-
-                    //更新ViewPager数据
-                    //不能在子线程更新UI   Only the original thread that created a view hierarchy can touch its views.
-                    //需要切换回主线程
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            bannerAdapter.notifyDataSetChanged();
+//                            bannerAdapter.notifyDataSetChanged();
+                            vp.setAdapter(bannerAdapter);
+
                         }
                     });
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -199,14 +195,6 @@ public class RecommendedFragment extends Fragment {
                 Log.e(TAG, "onResponse: "+homeResponse);
                 //存取有序吗？
                 HashMap<String,ArrayList<HomeResponse.ResultsBean.PlayListBean>> hashMap = new HashMap<>();
-                //
-
-                //最新音乐
-                //11111111111
-                //22222222222
-                //推荐音乐
-                //11111111111
-                //22222222222
 
                 for (int i = 0; i < homeResponse.getResults().size(); i++) {
 
@@ -214,7 +202,6 @@ public class RecommendedFragment extends Fragment {
                     HomeResponse.ResultsBean.PlayListBean playListBean = homeResponse.getResults().get(i).getPlayList();
 
                     String Item = resultsBean.getItem();
-
 
                     if(hashMap.containsKey(Item)){
                         //包含
@@ -253,6 +240,5 @@ public class RecommendedFragment extends Fragment {
 
     private BannerAdapter bannerAdapter;
 
-    ArrayList<Home> homes = new ArrayList<Home>();
 
 }

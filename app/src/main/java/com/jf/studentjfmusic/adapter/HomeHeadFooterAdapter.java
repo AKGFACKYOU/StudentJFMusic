@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jf.studentjfmusic.PlayListActivity;
 import com.jf.studentjfmusic.R;
@@ -73,7 +74,7 @@ public class HomeHeadFooterAdapter extends RecyclerView.Adapter {
         if (viewType == TYPE_FOOTER) {
             return new FooterViewHolder(mFooterView);
         }
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_home, parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_home, parent, false);
         ItemViewHolder itemViewHolder = new ItemViewHolder(view);
         return itemViewHolder;
     }
@@ -105,7 +106,7 @@ public class HomeHeadFooterAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
 
         //position   ==   0  mHeadView    HeadViewHolder
 
@@ -124,27 +125,37 @@ public class HomeHeadFooterAdapter extends RecyclerView.Adapter {
         }
         ((ItemViewHolder) holder).tv_name.setText(homes.get(position).getName());
 
+        ((ItemViewHolder) holder).tv_name.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(holder.itemView.getContext(), "我被点击啦", Toast.LENGTH_SHORT).show();
+                if(mItemSelector != null) {
+                    mItemSelector.selectorTab();
+                }
+            }
+        });
+
 
         //新专辑上架   3
         //最新音乐    2
         //推荐歌单    1
 
         int spanCount = 2;
-        if(homes.get(position).getName().equals("新专辑上架")){
+        if (homes.get(position).getName().equals("新专辑上架")) {
             spanCount = 3;
-        }else if(homes.get(position).getName().equals("最新音乐")){
+        } else if (homes.get(position).getName().equals("最新音乐")) {
             spanCount = 2;
-        }else if(homes.get(position).getName().equals("推荐歌单")){
+        } else if (homes.get(position).getName().equals("推荐歌单")) {
             spanCount = 1;
         }
 
         MyAdapter myAdapter = new MyAdapter(homes.get(position).getPlayListBeen());
-        ((ItemViewHolder) holder).rl.setLayoutManager(new GridLayoutManager(holder.itemView.getContext(),spanCount));
+        ((ItemViewHolder) holder).rl.setLayoutManager(new GridLayoutManager(holder.itemView.getContext(), spanCount));
         ((ItemViewHolder) holder).rl.setAdapter(myAdapter);
 
     }
 
-    class MyAdapter extends RecyclerView.Adapter{
+    class MyAdapter extends RecyclerView.Adapter {
         ArrayList<HomeResponse.ResultsBean.PlayListBean> playListBeen;
 
         public MyAdapter(ArrayList<HomeResponse.ResultsBean.PlayListBean> playListBeen) {
@@ -153,18 +164,18 @@ public class HomeHeadFooterAdapter extends RecyclerView.Adapter {
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_home_child,parent,false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_home_child, parent, false);
             MyItemViewHolder holder = new MyItemViewHolder(view);
-
 
 
             return holder;
         }
 
-        class MyItemViewHolder extends RecyclerView.ViewHolder{
+        class MyItemViewHolder extends RecyclerView.ViewHolder {
             SmartImageView siv;
             TextView tv_album;
             TextView tv_name;
+
             public MyItemViewHolder(View itemView) {
                 super(itemView);
                 siv = (SmartImageView) itemView.findViewById(R.id.siv);
@@ -191,14 +202,12 @@ public class HomeHeadFooterAdapter extends RecyclerView.Adapter {
 
                     //有View的地方就有上下文（Context）
                     Intent intent = new Intent(holder.itemView.getContext(), PlayListActivity.class);
-                    intent.putExtra(PlayListActivity.AUTHOR_KEY,playListBean.getAuthor().getUsername());
+                    intent.putExtra(PlayListActivity.AUTHOR_KEY, playListBean.getAuthor().getUsername());
 
-                    intent.putExtra(PlayListActivity.PLAYLISTBEAN_KEY,playListBean);
+                    intent.putExtra(PlayListActivity.PLAYLISTBEAN_KEY, playListBean);
 
 
-
-                    ((Activity)(holder.itemView.getContext())).startActivity(intent);
-
+                    ((Activity) (holder.itemView.getContext())).startActivity(intent);
 
 
                 }
@@ -211,8 +220,6 @@ public class HomeHeadFooterAdapter extends RecyclerView.Adapter {
             return playListBeen.size();
         }
     }
-
-
 
 
     private boolean isHead(int position) {
@@ -228,4 +235,17 @@ public class HomeHeadFooterAdapter extends RecyclerView.Adapter {
     public int getItemCount() {
         return homes.size() + (mHeadView != null ? 1 : 0) + (mFooterView != null ? 1 : 0);
     }
+
+    private RecommendedItemSelector mItemSelector;//持有接口的引用
+
+    public void setmItemSelector(RecommendedItemSelector mItemSelector) {
+        this.mItemSelector = mItemSelector;
+    }
+
+    public interface RecommendedItemSelector {
+        //
+        void selectorTab();
+    }
+
+
 }

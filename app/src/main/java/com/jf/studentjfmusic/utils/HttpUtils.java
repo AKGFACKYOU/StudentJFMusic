@@ -1,5 +1,6 @@
 package com.jf.studentjfmusic.utils;
 
+import okhttp3.HttpUrl;
 import okhttp3.Request;
 
 /**
@@ -32,7 +33,15 @@ public class HttpUtils {
     }
 
 
-
+    /**
+     * 获取一个GET请求
+     * @param url
+     * @return
+     */
+    public static Request requestGET(HttpUrl url){
+        Request request = getBuilder().url(url).get().build();
+        return request;
+    }
 
 
 

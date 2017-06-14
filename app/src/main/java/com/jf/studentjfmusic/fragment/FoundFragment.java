@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.jf.studentjfmusic.R;
+import com.jf.studentjfmusic.adapter.HomeHeadFooterAdapter;
 import com.jf.studentjfmusic.fragment.found.PlayListFragment;
 import com.jf.studentjfmusic.fragment.found.RecommendedFragment;
 
@@ -45,16 +46,28 @@ public class FoundFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.bind(this,view);
         foundItems = new ArrayList<>();
-        foundItems.add(new FoundItem("个性推荐", new RecommendedFragment()));
+
+        //只是创建了RecommendedFragment的对象，并没有执行Fragment中的生命周期方法
+        //生命周期方法只有在将Fragment显示，或者加载的时候执行
+        RecommendedFragment recommendedFragment = new RecommendedFragment();
+        foundItems.add(new FoundItem("个性推荐", recommendedFragment));
         foundItems.add(new FoundItem("歌单",new PlayListFragment()));
+
+
+
 
         FoundAdapter foundAdapter = new FoundAdapter(getChildFragmentManager());
         vp_found.setAdapter(foundAdapter);
         tl.setupWithViewPager(vp_found);
+
+        recommendedFragment.setmItemSelector(new HomeHeadFooterAdapter.RecommendedItemSelector() {
+            @Override
+            public void selectorTab() {
+                vp_found.setCurrentItem(1);
+            }
+        });
+
     }
-
-
-
 
 
     class FoundAdapter extends FragmentPagerAdapter{

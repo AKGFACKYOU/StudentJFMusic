@@ -7,6 +7,15 @@
     tools:context="com.jf.studentjfmusic.PlayListActivity">
 
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rl"
+        android:background="@color/color6"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+    </android.support.v7.widget.RecyclerView>
+
     <RelativeLayout
         android:id="@+id/ll_actionbar"
         android:layout_width="match_parent"
@@ -91,15 +100,6 @@
 
 
     </FrameLayout>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rl"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/color6">
-
-
-    </android.support.v7.widget.RecyclerView>
 
 
 </FrameLayout>

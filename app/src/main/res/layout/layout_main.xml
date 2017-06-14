@@ -31,21 +31,26 @@
                 android:id="@+id/my"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/actionbar_music_normal" />
+                android:src="@drawable/action_my_sel" />
 
             <ImageView
                 android:id="@+id/found"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/actionbar_discover_normal" />
+                android:src="@drawable/actionbar_found_sel"
+                 />
 
             <ImageView
                 android:id="@+id/friend"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/actionbar_friends_normal" />
+                android:src="@drawable/actionbar_friend_sel" />
         </LinearLayout>
 
+        <!--<ImageView-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:src="@mipmap/actionbar_search"-->
+        <!--android:layout_height="wrap_content" />-->
 
 
     </android.support.v7.widget.Toolbar>
@@ -54,9 +59,7 @@
     <android.support.v4.view.ViewPager
         android:id="@+id/vp_main"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </android.support.v4.view.ViewPager>
+        android:layout_height="match_parent"></android.support.v4.view.ViewPager>
 
 
 </LinearLayout>
