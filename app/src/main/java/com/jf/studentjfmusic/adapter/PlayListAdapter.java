@@ -30,6 +30,8 @@ public class PlayListAdapter extends RecyclerView.Adapter {
 
     ArrayList<PlayListResponse.ResultsBean> mResultsBeen;
 
+
+    //构造传入内容
     public PlayListAdapter(ArrayList<PlayListResponse.ResultsBean> mResultsBeen) {
         this.mResultsBeen = mResultsBeen;
     }
@@ -39,6 +41,7 @@ public class PlayListAdapter extends RecyclerView.Adapter {
         super.onAttachedToRecyclerView(recyclerView);
         Log.e(TAG, "onAttachedToRecyclerView: " + recyclerView.toString() );
 
+        //调用receyclerView的布局管理器
         RecyclerView.LayoutManager manager = recyclerView.getLayoutManager();
         if(manager instanceof GridLayoutManager){
             final GridLayoutManager gridLayoutManager = (GridLayoutManager) manager;
