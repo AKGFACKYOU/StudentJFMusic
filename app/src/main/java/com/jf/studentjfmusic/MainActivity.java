@@ -1,13 +1,21 @@
 package com.jf.studentjfmusic;
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
@@ -15,6 +23,7 @@ import android.widget.ImageView;
 import com.jf.studentjfmusic.fragment.FoundFragment;
 import com.jf.studentjfmusic.fragment.FriendFragment;
 import com.jf.studentjfmusic.fragment.MyFragment;
+import com.jf.studentjfmusic.service.MusicService;
 
 import java.util.ArrayList;
 
@@ -49,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Fragment> fragments;
 
     ArrayList<ImageView> mImageViews;
+    private PlayBroadcastReceiver mPlayBroadcastReceiver;
 
     //侧边栏布局
     //内容布局
@@ -122,7 +132,64 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+
+        registerBroadcast();
+        bindMusicService();
+
     }
+
+    private void registerBroadcast() {
+        mPlayBroadcastReceiver = new PlayBroadcastReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Constant.Action.PLAY);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mPlayBroadcastReceiver,intentFilter);
+    }
+
+    class PlayBroadcastReceiver extends BroadcastReceiver{
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            iv_playstatu.setImageResource(R.mipmap.play_rdi_btn_pause);
+        }
+    }
+
+
+
+
+    public void bindMusicService() {
+        Intent intent = new Intent(this, MusicService.class);
+        bindService(intent, connection, BIND_AUTO_CREATE);
+    }
+
+    MusicService.MusicBinder mMusicBinder;
+
+    ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mMusicBinder = (MusicService.MusicBinder) service;
+            Log.e(TAG, "onServiceConnected: " + "MainActivity 服务连接啦");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
+    @BindView(R.id.iv_playstatu)
+    ImageView iv_playstatu;
+
+    @OnClick(R.id.iv_playstatu)
+    void palyStatus(View view) {
+        if (mMusicBinder.isPlaying()) {
+            mMusicBinder.pause();
+            iv_playstatu.setImageResource(R.mipmap.a2s);
+        } else {
+            mMusicBinder.play();
+            iv_playstatu.setImageResource(R.mipmap.play_rdi_btn_pause);
+        }
+    }
+
     private void switchTabs(int position){
         for (int i = 0; i <mImageViews.size() ; i++) {
             if(i == position){
@@ -171,5 +238,12 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.iv_menu)
     void showMenu(View view){
         dl.openDrawer(Gravity.LEFT);
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mPlayBroadcastReceiver);
     }
 }

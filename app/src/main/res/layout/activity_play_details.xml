@@ -33,6 +33,7 @@
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/tv_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
@@ -41,6 +42,7 @@
                 android:textSize="16sp" />
 
             <TextView
+                android:id="@+id/tv_artist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="艺术家"
@@ -134,17 +136,20 @@
 
 
             <ImageView
+                android:id="@+id/iv_last"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@mipmap/play_btn_prev" />
 
 
             <ImageView
+                android:id="@+id/iv_play"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@mipmap/play_rdi_btn_play" />
 
             <ImageView
+                android:id="@+id/iv_next"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@mipmap/play_btn_next" />
@@ -167,20 +172,13 @@
         android:layout_above="@id/ll_bottom"
         android:layout_below="@id/ll_actionbar">
 
-        <ImageView
-            android:id="@+id/iv"
-            android:layout_width="263dp"
-            android:layout_height="263dp"
-            android:layout_centerInParent="true"
-            android:src="@mipmap/play_disc_halo" />
-
-        <android.support.v4.view.ViewPager
-            android:id="@+id/vp"
+        <com.jf.studentjfmusic.widget.DiscView
+            android:id="@+id/dv"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true">
+            android:layout_height="match_parent">
 
 
-        </android.support.v4.view.ViewPager>
+        </com.jf.studentjfmusic.widget.DiscView>
+
     </RelativeLayout>
 </RelativeLayout>

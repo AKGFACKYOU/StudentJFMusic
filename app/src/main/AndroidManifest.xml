@@ -25,7 +25,9 @@
 
         <service android:name=".service.MusicService" />
 
-        <activity android:name=".PlayDetailsActivity"></activity>
+        <activity android:name=".PlayDetailsActivity" />
+        <activity android:name=".activity.NearFriendActivity" />
+        <activity android:name=".activity.TestActivity"></activity>
     </application>
 
 </manifest>

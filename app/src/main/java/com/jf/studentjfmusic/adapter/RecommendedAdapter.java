@@ -17,6 +17,9 @@ import com.jf.studentjfmusic.bean.NewPlayListResultsBean;
 
 import java.util.ArrayList;
 
+import static com.jf.studentjfmusic.PlayDetailsActivity.INDEX_KEY;
+import static com.jf.studentjfmusic.PlayDetailsActivity.RESULTSBEEN_KEY;
+
 /**
  * 固定头尾Adapter
  */
@@ -151,6 +154,7 @@ public class RecommendedAdapter extends RecyclerView.Adapter {
         }
 
 
+        final int finalPosition = position;
         itemViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -158,6 +162,10 @@ public class RecommendedAdapter extends RecyclerView.Adapter {
                 //判断当前条目和最后一次记录的对象是否相等
                 if (bean.equals(mLastBean)) {
                     Intent intent = new Intent(holder.itemView.getContext(), PlayDetailsActivity.class);
+                    //因为在播放详情界面，需要拿到所有的歌曲列表，所以需要将集合传递给PlayDetailsActivity
+                    intent.putParcelableArrayListExtra(RESULTSBEEN_KEY,mResultsBeen);
+                    intent.putExtra(INDEX_KEY, finalPosition);
+
                     intent.putExtra(PlayDetailsActivity.DETAILS_KEY,bean);
                     ((Activity)holder.itemView.getContext()).startActivity(intent);
 
@@ -173,7 +181,7 @@ public class RecommendedAdapter extends RecyclerView.Adapter {
 
 
                     //本地广播
-                    Intent intent = new Intent(Constant.Action.PLAY);
+                    Intent intent = new Intent(Constant.Action.ACTION_PLAY);
                     intent.putExtra(PLAYDATA_KEY, bean);
 
                     //获取广播管理器

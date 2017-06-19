@@ -20,7 +20,12 @@ public class Constant {
     }
 
     public static class Action{
-        public final static String PLAY = "com.jf.studentjfmusic.action_play";
+        //动作
+        public final static String ACTION_PLAY = "com.jf.studentjfmusic.action_play";
+
+
+        //通知-开始播放音乐的通知，在MusicService服务里面，如果调用了play方法就会发送该播放
+        public final static String PLAY = "com.jf.studentjfmusic.play";
 
 
     }

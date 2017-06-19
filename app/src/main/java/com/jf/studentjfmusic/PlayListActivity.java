@@ -1,16 +1,12 @@
 package com.jf.studentjfmusic;
 
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,15 +16,14 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
+import com.jf.studentjfmusic.activity.base.BaseBottomNavActivity;
 import com.jf.studentjfmusic.adapter.RecommendedAdapter;
 import com.jf.studentjfmusic.bean.HomeResponse;
 import com.jf.studentjfmusic.bean.NewPlayListResponse;
 import com.jf.studentjfmusic.bean.NewPlayListResultsBean;
-import com.jf.studentjfmusic.service.MusicService;
 import com.jf.studentjfmusic.utils.HttpUtils;
 import com.jf.studentjfmusic.utils.JFMusicUrlJoint;
 import com.loopj.android.image.SmartImageView;
@@ -46,11 +41,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.jf.studentjfmusic.R.mipmap.play_rdi_btn_pause;
-import static com.jf.studentjfmusic.R2.attr.height;
 
-
-public class PlayListActivity extends AppCompatActivity {
+public class PlayListActivity extends BaseBottomNavActivity {
 
     @BindView(R.id.rl)
     RecyclerView rl;
@@ -76,8 +68,8 @@ public class PlayListActivity extends AppCompatActivity {
     @BindView(R.id.tv_name)
     TextView tv_name;
 
-    @BindView(R.id.iv_playstatu)
-    ImageView iv_playstatu;
+//    @BindView(R.id.iv_playstatu)
+//    ImageView iv_playstatu;
 
     public static final String OBJECTID_KEY = "objectId";
     public static final String PLAYLISTBEAN_KEY = "PlayListBean";
@@ -87,6 +79,7 @@ public class PlayListActivity extends AppCompatActivity {
     ArrayList<NewPlayListResultsBean> mResultsBeens;
     private RecommendedAdapter mPlayListAdapter;
     private HomeResponse.ResultsBean.PlayListBean mPlayListBean;
+    private PlayBroadcastReceiver mPlayBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +90,6 @@ public class PlayListActivity extends AppCompatActivity {
         layoutParams.height = layoutParams.height + getStatusBarHeight(this);
         ll_actionbar.setLayoutParams(layoutParams);
 
-        Log.i(TAG, "onCreate: " + height);
         mPlayListBean = getIntent().getParcelableExtra(PLAYLISTBEAN_KEY);
         String author = getIntent().getStringExtra(AUTHOR_KEY);
 
@@ -189,52 +181,62 @@ public class PlayListActivity extends AppCompatActivity {
             }
         });
         registerBroadcast();
-        bindMusicService();
+        //bindMusicService();
     }
 
 
     public void registerBroadcast() {
 
-        PlayBroadcastReceiver playBroadcastReceiver = new PlayBroadcastReceiver();
+        mPlayBroadcastReceiver = new PlayBroadcastReceiver();
 
         IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(Constant.Action.PLAY);
+        intentFilter.addAction(Constant.Action.ACTION_PLAY);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(playBroadcastReceiver, intentFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mPlayBroadcastReceiver, intentFilter);
 
 
     }
 
-    public void bindMusicService() {
-        Intent intent = new Intent(this, MusicService.class);
-        bindService(intent, connection, BIND_AUTO_CREATE);
+
+    /**
+     * Activity 关闭
+     */
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mPlayBroadcastReceiver);
+
     }
+//    public void bindMusicService() {
+//        Intent intent = new Intent(this, MusicService.class);
+//        bindService(intent, connection, BIND_AUTO_CREATE);
+//    }
 
-    MusicService.MusicBinder mMusicBinder;
+//    MusicService.MusicBinder mMusicBinder;
+//
+//    ServiceConnection connection = new ServiceConnection() {
+//        @Override
+//        public void onServiceConnected(ComponentName name, IBinder service) {
+//            mMusicBinder = (MusicService.MusicBinder) service;
+//            Log.e(TAG, "onServiceConnected: " + "PlayListActivity  服务连接啦");
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName name) {
+//
+//        }
+//    };
 
-    ServiceConnection connection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            mMusicBinder = (MusicService.MusicBinder) service;
-            Log.e(TAG, "onServiceConnected: " + "服务连接啦");
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-
-        }
-    };
-
-    @OnClick(R.id.iv_playstatu)
-    void palyStatus(View view) {
-        if (mMusicBinder.isPlaying()) {
-            mMusicBinder.pause();
-            iv_playstatu.setImageResource(R.mipmap.a2s);
-        } else {
-            mMusicBinder.play();
-            iv_playstatu.setImageResource(R.mipmap.play_rdi_btn_pause);
-        }
-    }
+//    @OnClick(R.id.iv_playstatu)
+//    void palyStatus(View view) {
+//        if (mMusicBinder.isPlaying()) {
+//            mMusicBinder.pause();
+//            iv_playstatu.setImageResource(R.mipmap.a2s);
+//        } else {
+//            mMusicBinder.play();
+//            iv_playstatu.setImageResource(R.mipmap.play_rdi_btn_pause);
+//        }
+//    }
 
     @OnClick(R.id.iv_back)
     void onBack(){
@@ -244,7 +246,8 @@ public class PlayListActivity extends AppCompatActivity {
     class PlayBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Toast.makeText(context, "我接收到播放的广播啦", Toast.LENGTH_SHORT).show();
+//            Toast.makeText(context, "我接收到播放的广播啦", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "onReceive: 我接收到播放的广播啦");
 
             NewPlayListResultsBean bean = intent.getParcelableExtra(RecommendedAdapter.PLAYDATA_KEY);
 
@@ -252,10 +255,9 @@ public class PlayListActivity extends AppCompatActivity {
 
             Log.e(TAG, "onReceive: " + bean.toString());
 
+
             mMusicBinder.play(bean.getFileUrl().getUrl());
-
-            iv_playstatu.setImageResource(play_rdi_btn_pause);
-
+            iv_playstatu.setImageResource(R.mipmap.play_rdi_btn_pause);
 
         }
     }
