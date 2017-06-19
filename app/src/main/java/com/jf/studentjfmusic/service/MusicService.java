@@ -10,10 +10,14 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.jf.studentjfmusic.Constant;
+import com.jf.studentjfmusic.bean.PlayList;
 
 import java.io.IOException;
 
 /**
+ * 将
+ * 1. 歌单id
+ * 2. 歌曲列表
  * Created by weidong on 2017/6/12.
  */
 
@@ -22,6 +26,10 @@ public class MusicService extends Service {
 
     private static MediaPlayer mMediaPlayer = new MediaPlayer();
 
+
+    public static PlayList mPlayList;
+
+    public static int mCurrIndex = 0;
 
     @Nullable
     @Override
@@ -40,17 +48,24 @@ public class MusicService extends Service {
         /**
          * 播放
          */
-        public void play(String uri) {
+        public void play(PlayList playList) {
             Log.e(TAG, "play: 开始播放啦");
+            mPlayList = playList;
+            String url = "";
 
-//            if (mMediaPlayer == null) {
-//                mMediaPlayer = new MediaPlayer();
-//                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-//                mMediaPlayer.setLooping(false);
-//            }
+            //获取当前播放的url
+
+            for (int i = 0; i < playList.getMusics().size(); i++) {
+                PlayList.Music music = playList.getMusics().get(i);
+                if(music.isPlayStatus()){
+                    url = music.getMusicUrl();
+                    mCurrIndex = i;
+                }
+            }
+
             mMediaPlayer.reset();
             try {
-                mMediaPlayer.setDataSource(uri);
+                mMediaPlayer.setDataSource(url);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -64,8 +79,6 @@ public class MusicService extends Service {
             Intent intent = new Intent(Constant.Action.PLAY);
             LocalBroadcastManager.getInstance(MusicService.this).sendBroadcast(intent);
 
-
-
         }
 
         /**
@@ -73,6 +86,9 @@ public class MusicService extends Service {
          */
         public void pause() {
             mMediaPlayer.pause();
+
+            Intent intent = new Intent(Constant.Action.PAUSE);
+            LocalBroadcastManager.getInstance(MusicService.this).sendBroadcast(intent);
         }
 
         /**
@@ -86,6 +102,24 @@ public class MusicService extends Service {
                 return false;
             }
         }
+    }
+
+
+
+    /**
+     * 获取当前播放的歌单
+     * @return
+     */
+    public static PlayList getCurrPlayList(){
+        return mPlayList;
+    }
+
+    /**
+     * 获取当前播放歌曲的下标
+     * @return
+     */
+    public static int getCurrPlayIndex(){
+        return mCurrIndex;
     }
 
 }

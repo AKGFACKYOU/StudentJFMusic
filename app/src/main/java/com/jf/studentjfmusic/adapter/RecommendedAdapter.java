@@ -13,9 +13,7 @@ import android.widget.TextView;
 import com.jf.studentjfmusic.Constant;
 import com.jf.studentjfmusic.PlayDetailsActivity;
 import com.jf.studentjfmusic.R;
-import com.jf.studentjfmusic.bean.NewPlayListResultsBean;
-
-import java.util.ArrayList;
+import com.jf.studentjfmusic.bean.PlayList;
 
 import static com.jf.studentjfmusic.PlayDetailsActivity.INDEX_KEY;
 import static com.jf.studentjfmusic.PlayDetailsActivity.RESULTSBEEN_KEY;
@@ -31,13 +29,13 @@ public class RecommendedAdapter extends RecyclerView.Adapter {
 
     public static final String PLAYDATA_KEY = "playData";
 
-    ArrayList<NewPlayListResultsBean> mResultsBeen;
+    PlayList mPlayList;
 
     private View mHeadView;
     private View mFooterView;
 
-    public RecommendedAdapter(ArrayList<NewPlayListResultsBean> resultsBeen) {
-        this.mResultsBeen = resultsBeen;
+    public RecommendedAdapter(PlayList playList) {
+        this.mPlayList = playList;
 
     }
 
@@ -117,7 +115,7 @@ public class RecommendedAdapter extends RecyclerView.Adapter {
 
 
     //记录上一次操作的bean，再次点击，修改该bean播放状态，并且重写赋值
-    NewPlayListResultsBean mLastBean;
+    PlayList.Music mLastBean;
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
@@ -134,7 +132,7 @@ public class RecommendedAdapter extends RecyclerView.Adapter {
         if (mHeadView != null) {
             position = position - 1;
         }
-        final NewPlayListResultsBean bean = mResultsBeen.get(position);
+        final PlayList.Music bean = mPlayList.getMusics().get(position);
 
 
         final ItemViewHolder itemViewHolder = (ItemViewHolder) holder;
@@ -159,11 +157,13 @@ public class RecommendedAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View v) {
 
+
+
                 //判断当前条目和最后一次记录的对象是否相等
                 if (bean.equals(mLastBean)) {
                     Intent intent = new Intent(holder.itemView.getContext(), PlayDetailsActivity.class);
                     //因为在播放详情界面，需要拿到所有的歌曲列表，所以需要将集合传递给PlayDetailsActivity
-                    intent.putParcelableArrayListExtra(RESULTSBEEN_KEY,mResultsBeen);
+                    intent.putExtra(RESULTSBEEN_KEY,mPlayList);
                     intent.putExtra(INDEX_KEY, finalPosition);
 
                     intent.putExtra(PlayDetailsActivity.DETAILS_KEY,bean);
@@ -175,6 +175,14 @@ public class RecommendedAdapter extends RecyclerView.Adapter {
                         mLastBean.setPlayStatus(false);
                     }
 
+
+                    //重置所有的状态
+                    for (int i = 0; i < mPlayList.getMusics().size(); i++) {
+                        mPlayList.getMusics().get(i).setPlayStatus(false);
+                    }
+
+
+
                     bean.setPlayStatus(true);
                     notifyDataSetChanged();
                     mLastBean = bean;//重新赋值
@@ -182,7 +190,8 @@ public class RecommendedAdapter extends RecyclerView.Adapter {
 
                     //本地广播
                     Intent intent = new Intent(Constant.Action.ACTION_PLAY);
-                    intent.putExtra(PLAYDATA_KEY, bean);
+                    intent.putExtra(PLAYDATA_KEY, mPlayList);
+
 
                     //获取广播管理器
                     LocalBroadcastManager manager = LocalBroadcastManager.getInstance(holder.itemView.getContext());
@@ -207,6 +216,6 @@ public class RecommendedAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemCount() {
-        return mResultsBeen.size() + (mHeadView != null ? 1 : 0) + (mFooterView != null ? 1 : 0);
+        return mPlayList.getMusics().size() + (mHeadView != null ? 1 : 0) + (mFooterView != null ? 1 : 0);
     }
 }

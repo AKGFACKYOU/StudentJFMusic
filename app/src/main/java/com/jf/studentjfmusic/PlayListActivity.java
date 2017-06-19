@@ -24,6 +24,8 @@ import com.jf.studentjfmusic.adapter.RecommendedAdapter;
 import com.jf.studentjfmusic.bean.HomeResponse;
 import com.jf.studentjfmusic.bean.NewPlayListResponse;
 import com.jf.studentjfmusic.bean.NewPlayListResultsBean;
+import com.jf.studentjfmusic.bean.PlayList;
+import com.jf.studentjfmusic.service.MusicService;
 import com.jf.studentjfmusic.utils.HttpUtils;
 import com.jf.studentjfmusic.utils.JFMusicUrlJoint;
 import com.loopj.android.image.SmartImageView;
@@ -41,7 +43,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-
+/**
+ * 匹配正在播放的歌单
+ * 1. 需要获取到正在播放的歌单的id
+ * 2. 如果播放的歌单id 和 进入界面的歌单id一致 ，需要获取正在播放的歌曲下标
+ */
 public class PlayListActivity extends BaseBottomNavActivity {
 
     @BindView(R.id.rl)
@@ -60,8 +66,6 @@ public class PlayListActivity extends BaseBottomNavActivity {
     ImageView iv_back;
 
 
-
-
     @BindView(R.id.tv_title)
     TextView tv_title;
 
@@ -70,6 +74,10 @@ public class PlayListActivity extends BaseBottomNavActivity {
 
 //    @BindView(R.id.iv_playstatu)
 //    ImageView iv_playstatu;
+
+    //歌单对象
+    PlayList mPlayList = new PlayList();
+
 
     public static final String OBJECTID_KEY = "objectId";
     public static final String PLAYLISTBEAN_KEY = "PlayListBean";
@@ -98,11 +106,10 @@ public class PlayListActivity extends BaseBottomNavActivity {
 
         Log.e(TAG, "onCreate: " + mPlayListBean.getObjectId());
 
-
         getNewPlayList(mPlayListBean.getObjectId());
 
         rl.setLayoutManager(new LinearLayoutManager(this));
-        mPlayListAdapter = new RecommendedAdapter(mResultsBeens);
+        mPlayListAdapter = new RecommendedAdapter(mPlayList);
 
         View headView = LayoutInflater.from(this).inflate(R.layout.layout_songlist_head, rl, false);
         ImageView head_iv_bg = (ImageView) headView.findViewById(R.id.iv_bg);
@@ -112,7 +119,7 @@ public class PlayListActivity extends BaseBottomNavActivity {
         Glide.with(this)
                 .load(mPlayListBean.getPicUrl())
                 //模糊图片, this   10 模糊度   5 将图片缩放到5倍后进行模糊
-                .bitmapTransform(new BlurTransformation(this,10,5) {
+                .bitmapTransform(new BlurTransformation(this, 10, 5) {
                 })
                 .into(head_iv_bg);
 
@@ -186,15 +193,10 @@ public class PlayListActivity extends BaseBottomNavActivity {
 
 
     public void registerBroadcast() {
-
         mPlayBroadcastReceiver = new PlayBroadcastReceiver();
-
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constant.Action.ACTION_PLAY);
-
         LocalBroadcastManager.getInstance(this).registerReceiver(mPlayBroadcastReceiver, intentFilter);
-
-
     }
 
 
@@ -239,7 +241,7 @@ public class PlayListActivity extends BaseBottomNavActivity {
 //    }
 
     @OnClick(R.id.iv_back)
-    void onBack(){
+    void onBack() {
         finish();
     }
 
@@ -249,14 +251,13 @@ public class PlayListActivity extends BaseBottomNavActivity {
 //            Toast.makeText(context, "我接收到播放的广播啦", Toast.LENGTH_SHORT).show();
             Log.e(TAG, "onReceive: 我接收到播放的广播啦");
 
-            NewPlayListResultsBean bean = intent.getParcelableExtra(RecommendedAdapter.PLAYDATA_KEY);
+            PlayList bean = intent.getParcelableExtra(RecommendedAdapter.PLAYDATA_KEY);
 
-            tv_name.setText(bean.getTitle());
+//            tv_name.setText(bean.getTitle());
+//
+//            Log.e(TAG, "onReceive: " + bean.toString());
 
-            Log.e(TAG, "onReceive: " + bean.toString());
-
-
-            mMusicBinder.play(bean.getFileUrl().getUrl());
+            mMusicBinder.play(bean);
             iv_playstatu.setImageResource(R.mipmap.play_rdi_btn_pause);
 
         }
@@ -275,26 +276,90 @@ public class PlayListActivity extends BaseBottomNavActivity {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String result = response.body().string();
-                Log.e(TAG, "onResponse: " + result);
-                NewPlayListResponse newPlayListResponse = new Gson().fromJson(result, NewPlayListResponse.class);
+
+//                //从程序的角度出发，让一个线程去等待另一个线程，使用睡眠的方式是不合理的
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+
+                    String result = response.body().string();//F11 添加书签   Shift + F11 查看书签
+                    Log.e(TAG, "onResponse: " + result);
+                    NewPlayListResponse newPlayListResponse = new Gson().fromJson(result, NewPlayListResponse.class);
+
+                    Log.e(TAG, "onResponse: " + newPlayListResponse.toString());
+
+                    //将所有数据添加到 adapter 持有的集合里面
+                    mResultsBeens.addAll(newPlayListResponse.getResults());
+
+                    mPlayList.setObjectId(mPlayListBean.getObjectId());
+
+                    ArrayList<PlayList.Music> musics = new ArrayList<PlayList.Music>();
+                    //歌曲列表
+                    for (int i = 0; i < newPlayListResponse.getResults().size(); i++) {
+                        NewPlayListResultsBean bean = newPlayListResponse.getResults().get(i);
+                        //bean.getAlbumPic()  == null
+                        //null.getUrl()   NullPointerException
+                        String alubmPic = bean.getAlbumPic() == null ? "" : bean.getAlbumPic().getUrl();
+
+                        PlayList.Music music = new PlayList.Music(
+                                bean.getObjectId(),
+                                bean.getTitle(),
+                                bean.getArtist(),
+                                bean.getFileUrl().getUrl(),
+                                alubmPic,
+                                bean.getAlbum()
+                        );
 
 
-                Log.e(TAG, "onResponse: " + newPlayListResponse.toString());
+                        //模拟第一个正在播放
 
-                //将所有数据添加到 adapter 持有的集合里面
-                mResultsBeens.addAll(newPlayListResponse.getResults());
+                        //需要判断正在播放的歌单是否和当前界面歌单的id一致，如果一致，那么直接取正在播放的下标
+//                    if(currIndex != -1 && mCurrPlayList!= null && mCurrPlayList.getObjectId().equals(mPlayListBean.getObjectId())) {
+//                        if (i == currIndex) {
+//                            music.setPlayStatus(true);
+//                        }
+//                    }
 
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mPlayListAdapter.notifyDataSetChanged();
+                        //直接使用服务的静态方法
+                        int currIndex = MusicService.getCurrPlayIndex();
+                        PlayList playList = MusicService.getCurrPlayList();
+                        if (currIndex != -1 && playList != null && playList.getObjectId().equals(mPlayListBean.getObjectId())) {
+                            if (i == currIndex) {
+                                music.setPlayStatus(true);
+                            }
+                        }
+
+
+                        musics.add(music);
                     }
-                });
+
+                    mPlayList.setMusics(musics);
+
+                    Log.e(TAG, "onResponse: " + musics.toString());
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mPlayListAdapter.notifyDataSetChanged();
+                        }
+                    });
+
+
             }
         });
 
     }
+
+
+//    int currIndex = -1;
+//    PlayList mCurrPlayList;
+//    @Override
+//    public void updatePlayListStatus(PlayList playList, int currIndex) {
+//        this.currIndex = currIndex;
+//        this.mCurrPlayList = playList;
+//    }
 
     //获取状态栏高度
     private static int getStatusBarHeight(Context context) {

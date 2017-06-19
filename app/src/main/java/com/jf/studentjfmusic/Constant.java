@@ -27,6 +27,10 @@ public class Constant {
         //通知-开始播放音乐的通知，在MusicService服务里面，如果调用了play方法就会发送该播放
         public final static String PLAY = "com.jf.studentjfmusic.play";
 
+        //通知-暂停播放音乐的通知，
+        public final static String PAUSE = "com.jf.studentjfmusic.pause";
+
+
 
     }
 

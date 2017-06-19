@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     ArrayList<Fragment> fragments;
 
     ArrayList<ImageView> mImageViews;
-    private PlayBroadcastReceiver mPlayBroadcastReceiver;
+    private MusicChangeBroadcastReceiver mPlayBroadcastReceiver;
 
     //侧边栏布局
     //内容布局
@@ -140,16 +140,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void registerBroadcast() {
-        mPlayBroadcastReceiver = new PlayBroadcastReceiver();
+        mPlayBroadcastReceiver = new MusicChangeBroadcastReceiver();
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constant.Action.PLAY);
+        intentFilter.addAction(Constant.Action.PAUSE);
         LocalBroadcastManager.getInstance(this).registerReceiver(mPlayBroadcastReceiver,intentFilter);
     }
 
-    class PlayBroadcastReceiver extends BroadcastReceiver{
+    class MusicChangeBroadcastReceiver extends BroadcastReceiver{
         @Override
         public void onReceive(Context context, Intent intent) {
-            iv_playstatu.setImageResource(R.mipmap.play_rdi_btn_pause);
+            //如果监听两个广播，那么需要判断接收到的广播类型
+            switch (intent.getAction()){
+                case Constant.Action.PLAY:
+                    iv_playstatu.setImageResource(R.mipmap.play_rdi_btn_pause);
+                    break;
+                case Constant.Action.PAUSE:
+                    iv_playstatu.setImageResource(R.mipmap.a2s);
+                    break;
+            }
         }
     }
 
@@ -245,5 +254,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mPlayBroadcastReceiver);
+        unbindService(connection);
     }
 }

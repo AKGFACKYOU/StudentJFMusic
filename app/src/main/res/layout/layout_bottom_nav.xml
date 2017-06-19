@@ -35,12 +35,13 @@
 
 
     <ImageView
-        android:layout_width="50dp"
         android:id="@+id/iv_playstatu"
+        android:layout_width="50dp"
         android:layout_height="50dp"
         android:src="@mipmap/a2s" />
 
     <ImageView
+        android:id="@+id/iv_showlist"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:src="@mipmap/aak" />
